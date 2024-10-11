@@ -8,6 +8,7 @@ import {
   Entity,
 } from 'typeorm'
 import { Role } from './role.entity'
+import { Expose } from 'class-transformer'
 
 @Entity({
   name: 'users',
@@ -16,6 +17,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number
 
+  @Expose()
   @Column({
     length: 40,
     comment: '用户名',
@@ -28,6 +30,7 @@ export class User {
   })
   password: string
 
+  @Expose()
   @Column({
     name: 'nick_name',
     length: 40,
@@ -35,12 +38,14 @@ export class User {
   })
   nickName: string
 
+  @Expose()
   @Column({
     length: 60,
     comment: '邮箱',
   })
   email: string
 
+  @Expose()
   @Column({
     length: 120,
     comment: '头像',
@@ -48,6 +53,7 @@ export class User {
   })
   avatar: string
 
+  @Expose()
   @Column({
     length: 20,
     comment: '手机号',

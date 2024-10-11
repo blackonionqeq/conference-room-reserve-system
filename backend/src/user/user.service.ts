@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  UnauthorizedException,
   // UnauthorizedException,
 } from '@nestjs/common'
 // import { CreateUserDto } from './dto/create-user.dto'
@@ -16,10 +17,16 @@ import { md5 } from 'src/utils/cypto'
 import { EmailService } from 'src/email/email.service'
 import { Role } from './entities/role.entity'
 import { Permission } from './entities/permission.entity'
+import { LoginUserDto } from './dto/login-user.dto'
+import { JwtService } from '@nestjs/jwt'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class UserService {
   private logger = new Logger()
+
+  @Inject(ConfigService)
+  private configService: ConfigService
 
   @InjectRepository(User)
   private userRepository: Repository<User>
@@ -33,6 +40,9 @@ export class UserService {
 
   @Inject(EmailService)
   private emailService: EmailService
+
+  @Inject(JwtService)
+  private jwtService: JwtService
 
   async register(user: RegisterUserDto) {
     console.log(user)
@@ -116,5 +126,67 @@ export class UserService {
     await this.permissionRepository.save([permission1, permission2])
     await this.roleRepository.save([role1, role2])
     await this.userRepository.save([user1, user2])
+  }
+
+  signByUserInfo(user: User) {
+    const accessToken = this.jwtService.sign({
+      userId: user.id,
+      username: user.username,
+      roles: user.roles,
+    })
+    const refreshToken = this.jwtService.sign(
+      {
+        userId: user.id,
+      },
+      {
+        expiresIn: this.configService.get('jwt_refresh_token_express_time'),
+      },
+    )
+    return {
+      accessToken,
+      refreshToken,
+    }
+  }
+
+  async login({ username, password }: LoginUserDto, isAdmin: boolean) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username,
+        isAdmin,
+      },
+      relations: ['roles', 'roles.permissions'],
+    })
+    if (!user) {
+      throw new BadRequestException('用户不存在')
+    }
+    if (user.password !== md5(password)) {
+      throw new BadRequestException('密码错误')
+    }
+
+    return this.signByUserInfo(user)
+
+    // return user
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      const data = this.jwtService.verify(refreshToken)
+      const user = await this.userRepository.findOne({
+        where: {
+          id: data.userId,
+        },
+        relations: ['roles', 'roles.permissions'],
+      })
+      console.log(user)
+      return this.signByUserInfo(user)
+    } catch {
+      throw new UnauthorizedException('token已失效，请重新登陆')
+    }
+  }
+
+  async findUserById(id: string) {
+    const user = this.userRepository.findOneBy({ id: +id })
+    console.log(user)
+    return user
   }
 }
