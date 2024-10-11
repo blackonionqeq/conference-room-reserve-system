@@ -25,7 +25,7 @@ export class PermissionGuard implements CanActivate {
       'require-permission',
       [context.getClass(), context.getHandler()],
     )
-    if (!requiredPermissions.length) return true
+    if (!requiredPermissions || !requiredPermissions.length) return true
 
     for (let i = 0; i < requiredPermissions.length; i++) {
       const curPer = requiredPermissions[i]

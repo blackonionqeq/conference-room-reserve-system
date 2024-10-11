@@ -11,7 +11,7 @@ import { User } from './user/entities/user.entity'
 import { JwtService } from '@nestjs/jwt'
 import type { Request } from 'express'
 
-type PickUser = Pick<User, 'id' | 'username' | 'roles'>
+type PickUser = Pick<User, 'username' | 'roles'> & { userId: number }
 
 declare module 'express' {
   interface Request {

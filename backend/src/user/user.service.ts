@@ -20,6 +20,8 @@ import { Permission } from './entities/permission.entity'
 import { LoginUserDto } from './dto/login-user.dto'
 import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
+import { UpdatePasswordDto } from './dto/update-password.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UserService {
@@ -184,9 +186,34 @@ export class UserService {
     }
   }
 
-  async findUserById(id: string) {
+  async findUserById(id: string | number) {
     const user = this.userRepository.findOneBy({ id: +id })
     console.log(user)
     return user
+  }
+
+  async updatePassword(updatePasswordDto: UpdatePasswordDto, userId: number) {
+    const user = await this.findUserById(userId)
+    if (md5(updatePasswordDto.oldPassword) !== user.password) {
+      throw new UnauthorizedException('旧密码错误')
+    }
+    try {
+      user.password = md5(updatePasswordDto.password)
+      await this.userRepository.save(user)
+      return '操作成功'
+    } catch {
+      return '操作失败'
+    }
+  }
+
+  async updateUserInfo(updateUserDto: UpdateUserDto, userId: number) {
+    const user = await this.findUserById(userId)
+    try {
+      Object.entries(updateUserDto).forEach(([key, val]) => (user[key] = val))
+      await this.userRepository.save(user)
+      return '操作成功'
+    } catch {
+      return '操作失败'
+    }
   }
 }

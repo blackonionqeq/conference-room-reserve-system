@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   SerializeOptions,
+  Req,
   // SetMetadata,
   // Inject,
   // Patch,
@@ -20,6 +21,10 @@ import { UserService } from './user.service'
 import { RegisterUserDto } from './dto/register-user.dto'
 import { LoginUserDto } from './dto/login-user.dto'
 import { RequireLogin, RequirePermission } from 'src/utils/permission-decorator'
+import { UpdatePasswordDto } from './dto/update-password.dto'
+import type { Request } from 'express'
+import { UpdateUserDto } from './dto/update-user.dto'
+// import { md5 } from 'src/utils/cypto'
 
 @Controller('user')
 export class UserController {
@@ -70,5 +75,20 @@ export class UserController {
   @RequirePermission('ddd')
   aaa() {
     return 'get aaa!'
+  }
+
+  @Post(['update_password', 'admin/update_password'])
+  @RequireLogin()
+  async updatePassword(
+    @Body() passwordDto: UpdatePasswordDto,
+    @Req() req: Request,
+  ) {
+    return await this.userService.updatePassword(passwordDto, req.user.userId)
+  }
+
+  @Post(['update', 'admin/update'])
+  @RequireLogin()
+  async update(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
+    return await this.userService.updateUserInfo(updateUserDto, req.user.userId)
   }
 }
