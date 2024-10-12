@@ -9,6 +9,9 @@ import {
   ClassSerializerInterceptor,
   SerializeOptions,
   Req,
+  Param,
+  ParseIntPipe,
+  DefaultValuePipe,
   // SetMetadata,
   // Inject,
   // Patch,
@@ -90,5 +93,32 @@ export class UserController {
   @RequireLogin()
   async update(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
     return await this.userService.updateUserInfo(updateUserDto, req.user.userId)
+  }
+
+  @Get('freeze/:username')
+  async freeze(@Param('username') username: string) {
+    return await this.userService.freezeUser(username)
+  }
+
+  // @SerializeOptions({
+  //   strategy: 'excludeAll',
+  // })
+  // @UseInterceptors(ClassSerializerInterceptor)
+  @Get('list')
+  async list(
+    @Query('pageNum', new DefaultValuePipe(1), ParseIntPipe) pageNum: number,
+    @Query('pageSize', new DefaultValuePipe(2), ParseIntPipe) pageSize: number,
+    @Query('username') username?: string,
+    @Query('email') email?: string,
+    @Query('nickName') nickName?: string,
+  ) {
+    return await this.userService.findUsers({
+      pageNum,
+      pageSize,
+      email,
+      nickName,
+      username,
+    })
+    // return await this.userService.findUsersByPage(pageNum, pageSize)
   }
 }

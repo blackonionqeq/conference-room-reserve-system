@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   BadRequestException,
   Inject,
@@ -11,7 +12,7 @@ import {
 import { RegisterUserDto } from './dto/register-user.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import { User } from './entities/user.entity'
-import { Repository } from 'typeorm'
+import { Like, Repository } from 'typeorm'
 import { RedisService } from 'src/redis/redis.service'
 import { md5 } from 'src/utils/cypto'
 import { EmailService } from 'src/email/email.service'
@@ -214,6 +215,66 @@ export class UserService {
       return '操作成功'
     } catch {
       return '操作失败'
+    }
+  }
+
+  async freezeUser(username: string) {
+    const user = await this.userRepository.findOneBy({
+      username,
+    })
+    user.isFrozen = true
+    await this.userRepository.save(user)
+    return null
+  }
+
+  async findUsersByPage(pageNum: number, pageSize: number) {
+    const skipCount = Math.min(pageNum - 1, 0) * pageSize
+
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      skip: skipCount,
+      take: pageSize,
+    })
+
+    return {
+      users,
+      totalCount,
+    }
+  }
+  async findUsers({
+    username,
+    nickName,
+    email,
+    pageNum,
+    pageSize,
+  }: {
+    username: string | undefined,
+    nickName: string | undefined,
+    email: string | undefined,
+    pageNum: number,
+    pageSize: number,
+  }) {
+    
+    const skipCount = Math.min(pageNum - 1, 0) * pageSize
+
+    const condition: Record<string, any> = {}
+    if (username) {
+      condition.username = Like(`%${username.replace(/%/g, '\\%')}%`)
+    }
+    if (nickName) {
+      condition.nickName = Like(`%${nickName.replace(/%/g, '\\%')}%`)
+    }
+    if (email) {
+      condition.email = Like(`%${email.replace(/%/g, '\\%')}%`)
+    }
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      select: ['id', 'username', 'nickName', 'email', 'avatar', 'isFrozen', 'phoneNumber', 'createDate'],
+      skip: skipCount,
+      take: pageSize,
+      where: condition,
+    })
+    return {
+      users,
+      totalCount,
     }
   }
 }

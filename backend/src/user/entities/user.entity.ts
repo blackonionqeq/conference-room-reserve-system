@@ -61,6 +61,7 @@ export class User {
   })
   phoneNumber: string
 
+  @Expose()
   @Column({
     comment: '是否冻结',
     default: false,

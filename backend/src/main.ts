@@ -9,6 +9,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalInterceptors(new FormatResponseInterceptor())
+  app.enableCors()
   await app.listen(app.get(ConfigService).get('nest_server_port'))
 }
 bootstrap()
