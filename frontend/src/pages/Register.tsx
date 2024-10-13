@@ -5,7 +5,7 @@ import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 
 
-type RegisterUser = {
+export type RegisterUser = {
 	username: string
 	nickName: string
 	password: string

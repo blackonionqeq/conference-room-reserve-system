@@ -9,6 +9,11 @@ import 'virtual:uno.css'
 import { ForgetPassword } from './pages/ForgetPassword'
 import { Home } from './pages/home'
 import { UpdateUserInfo } from './pages/home/UpdateUserInfo'
+import { AdminHome } from './pages/admin'
+import { AdminLogin } from './pages/admin/Login'
+import { AdminMenu } from './pages/admin/Menu'
+import { UserManagement } from './pages/admin/UserManagement'
+import { UserMenu } from './pages/admin/UserMenu'
 
 // function Layout() {
 //   return <div>
@@ -24,12 +29,7 @@ import { UpdateUserInfo } from './pages/home/UpdateUserInfo'
 //   </div>
 // }
 
-const router = createBrowserRouter([
-  // {
-    // path: '/',
-    // element: <Layout></Layout>,
-    // errorElement: <div>Error</div>,
-    // children: [
+export const router = createBrowserRouter([
       {
         path: '/',
         element: <div>default page</div>,
@@ -65,6 +65,40 @@ const router = createBrowserRouter([
         path: 'forget-password',
         element: <ForgetPassword/>
       },
+      {
+        path: '/admin',
+        element: <AdminHome></AdminHome>,
+        children: [
+          {
+            path: '',
+            element: <AdminMenu></AdminMenu>,
+            children: [
+              {
+                path: 'user-managment',
+                element: <UserManagement></UserManagement>,
+              },
+            ],
+          },
+          {
+            path: 'user',
+            element: <UserMenu></UserMenu>,
+            children: [
+              {
+                path: 'modify-info',
+                element: <UpdateUserInfo></UpdateUserInfo>
+              },
+              {
+                path: 'modify-password',
+                element: <UpdatePassword></UpdatePassword>
+              },
+            ],
+          },
+          {
+            path: 'login',
+            element: <AdminLogin></AdminLogin>
+          },
+        ],
+      }
     // ]
   // }
 ])

@@ -13,6 +13,8 @@ import { JwtModule } from '@nestjs/jwt'
 import { APP_GUARD } from '@nestjs/core'
 import { LoginGuard } from './login.guard'
 import { PermissionGuard } from './permission.guard'
+import { ConferenceRoomModule } from './conference-room/conference-room.module'
+import { ConferenceRoom } from './conference-room/entities/conference-room.entity'
 
 @Module({
   imports: [
@@ -46,15 +48,15 @@ import { PermissionGuard } from './permission.guard'
           // username: 'root',
           // password: 'shidi666',
           // database: 'conference_room_reserve_system',
-          // synchronize: true,
           synchronize: false,
+          // synchronize: true,
           logging: true,
           poolSize: 10,
           connectorPackage: 'mysql2',
           extra: {
             authPlugin: 'sha256_password',
           },
-          entities: [User, Role, Permission],
+          entities: [User, Role, Permission, ConferenceRoom],
         }
       },
       inject: [ConfigService],
@@ -62,6 +64,7 @@ import { PermissionGuard } from './permission.guard'
     UserModule,
     RedisModule,
     EmailModule,
+    ConferenceRoomModule,
   ],
   controllers: [AppController],
   providers: [

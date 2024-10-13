@@ -255,7 +255,7 @@ export class UserService {
     pageSize: number,
   }) {
     
-    const skipCount = Math.min(pageNum - 1, 0) * pageSize
+    const skipCount = Math.max(pageNum - 1, 0) * pageSize
 
     const condition: Record<string, any> = {}
     if (username) {
