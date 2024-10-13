@@ -5,9 +5,8 @@ import { useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 
 
-type RegisterUser = {
+type ForgetPasswordForm = {
 	username: string
-	nickName: string
 	password: string
 	confirmPassword: string
 	email: string
@@ -16,19 +15,19 @@ type RegisterUser = {
 
 
 
-export function Register() {
+export function ForgetPassword() {
 	const [form] = useForm()
 	const nav = useNavigate()
 	
-	async function onFinish(value: RegisterUser) {
+	async function onFinish(value: ForgetPasswordForm) {
 		// console.log(value)
 		if (value.confirmPassword !== value.password) {
 			message.error('两次输入的密码不一致')
 			return
 		}
-		const { code } = await api.post<any, ResponseType>('/user/register', value)
+		const { code } = await api.post<any, ResponseType>('/user/forget-password', value)
 		if (code === 200 || code === 201) {
-			message.success('注册成功')
+			message.success('修改密码成功')
 			setTimeout(() => nav('/login'), 2000)
 		}
 	}
@@ -40,7 +39,7 @@ export function Register() {
 				message.error('请先输入邮箱')
 				return
 			}
-			const {data} = await api.get<any, ResponseType<string>>('/user/register-captcha', { params: { address: email } })
+			const {data} = await api.get<any, ResponseType<string>>(`/user/captcha/${email}`)
 			message.success(data)
 		}, []
 	)
@@ -50,10 +49,7 @@ export function Register() {
 			<Form.Item label='用户名' name='username' rules={[{required: true, message: '请输入用户名'}]}>
 				<Input></Input>
 			</Form.Item>
-			<Form.Item label='昵称' name='nickName' rules={[{required: true, message: '请输入昵称'}]}>
-				<Input></Input>
-			</Form.Item>
-			<Form.Item label='密码' name='password' rules={[{required: true, message: '请输入密码'}]}>
+			<Form.Item label='新密码' name='password' rules={[{required: true, message: '请输入密码'}]}>
 				<Input.Password></Input.Password>
 			</Form.Item>
 			<Form.Item label='确认密码' name='confirmPassword' rules={[{required: true, message: '请输入确认密码'}]}>
@@ -72,7 +68,7 @@ export function Register() {
 
 			
 			<Form.Item labelCol={{span:0}} wrapperCol={{span: 24}}>
-				<Button type='primary' htmlType="submit" className="w-full">注册</Button>
+				<Button type='primary' htmlType="submit" className="w-full">更改密码</Button>
 			</Form.Item>
 			
 			<Form.Item labelCol={{span:0}} wrapperCol={{span: 24}}>

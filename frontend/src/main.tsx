@@ -6,6 +6,9 @@ import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { UpdatePassword } from './pages/UpdatePassword'
 import 'virtual:uno.css'
+import { ForgetPassword } from './pages/ForgetPassword'
+import { Home } from './pages/home'
+import { UpdateUserInfo } from './pages/home/UpdateUserInfo'
 
 // function Layout() {
 //   return <div>
@@ -33,6 +36,20 @@ const router = createBrowserRouter([
         errorElement: <div>Error</div>,
       },
       {
+        path: '/home',
+        element: <Home></Home>,
+        children: [
+          {
+            path: 'login',
+            element: <Login/>
+          },
+          {
+            path: 'update-user-info',
+            element: <UpdateUserInfo/>
+          },
+        ]
+      },
+      {
         path: 'login',
         element: <Login/>
       },
@@ -43,6 +60,10 @@ const router = createBrowserRouter([
       {
         path: 'update-password',
         element: <UpdatePassword/>
+      },
+      {
+        path: 'forget-password',
+        element: <ForgetPassword/>
       },
     // ]
   // }

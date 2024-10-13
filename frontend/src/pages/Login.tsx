@@ -1,18 +1,21 @@
 import { Button, Form, Input, message } from "antd";
 import  api, { ResponseType } from "../api";
 import { Token } from "../token";
+import { useNavigate } from "react-router-dom";
 
-async function onFinish(value: {username: string, password: string}) {
-	// console.log(value)
-	const {data: {accessToken, refreshToken}} = await api.post<any, ResponseType<Token>>('/user/login', value)
-	localStorage.setItem('accessToken', accessToken)
-	localStorage.setItem('refreshToken', refreshToken)
-	message.success('登录成功')
-}
 
 
 
 export function Login() {
+	const nav = useNavigate()
+	async function onFinish(value: {username: string, password: string}) {
+		// console.log(value)
+		const {data: {accessToken, refreshToken}} = await api.post<any, ResponseType<Token>>('/user/login', value)
+		localStorage.setItem('accessToken', accessToken)
+		localStorage.setItem('refreshToken', refreshToken)
+		message.success('登录成功')
+		setTimeout(() => nav('/home'), 2000)
+	}
 	return <div className="w-[400px] mt-[100px] mx-auto text-center">
 		<h1>会议室预订系统</h1>
 		<Form labelCol={{span:4}} wrapperCol={{span:20}} onFinish={onFinish} autoComplete='off' colon={false}>
@@ -25,8 +28,8 @@ export function Login() {
 
 			<Form.Item labelCol={{span: 0}} wrapperCol={{span:24}}>
 				<div className="flex justify-between">
-					<a href="">创建账号</a>
-					<a href="">忘记密码</a>
+					<a href="/register">创建账号</a>
+					<a href="/forget-password">忘记密码</a>
 				</div>
 			</Form.Item>
 			<Form.Item labelCol={{span: 0}} wrapperCol={{span:24}}>

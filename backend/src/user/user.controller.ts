@@ -27,6 +27,7 @@ import { RequireLogin, RequirePermission } from 'src/utils/permission-decorator'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import type { Request } from 'express'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { ForgetPasswordDto } from './dto/forget-password.dto'
 // import { md5 } from 'src/utils/cypto'
 
 @Controller('user')
@@ -40,7 +41,7 @@ export class UserController {
 
   @Get('register-captcha')
   async captcha(@Query('address') address: string) {
-    return await this.userService.generateAndSendMail(address)
+    return await this.userService.generateAndSendMail(address, '注册验证码')
   }
 
   @Get('init-user-data')
@@ -68,9 +69,10 @@ export class UserController {
     strategy: 'excludeAll',
   })
   @UseInterceptors(ClassSerializerInterceptor)
+  @RequireLogin()
   @Get('userInfo')
-  async userInfo(@Query('id') userId: string) {
-    return await this.userService.findUserById(userId)
+  async userInfo(@Req() req: Request) {
+    return await this.userService.findUserById(req.user.userId)
   }
 
   @Get('aaa')
@@ -100,10 +102,6 @@ export class UserController {
     return await this.userService.freezeUser(username)
   }
 
-  // @SerializeOptions({
-  //   strategy: 'excludeAll',
-  // })
-  // @UseInterceptors(ClassSerializerInterceptor)
   @Get('list')
   async list(
     @Query('pageNum', new DefaultValuePipe(1), ParseIntPipe) pageNum: number,
@@ -119,6 +117,15 @@ export class UserController {
       nickName,
       username,
     })
-    // return await this.userService.findUsersByPage(pageNum, pageSize)
+  }
+
+  @Get('captcha/:email')
+  async sendCaptchaEmail(@Param('email') email: string) {
+    return await this.userService.generateAndSendMail(email)
+  }
+
+  @Post('forget-password')
+  async forgetPassowrd(@Body() forgetpasswordDto: ForgetPasswordDto) {
+    return await this.userService.forgetPassword(forgetpasswordDto)
   }
 }

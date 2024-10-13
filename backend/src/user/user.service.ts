@@ -23,6 +23,7 @@ import { JwtService } from '@nestjs/jwt'
 import { ConfigService } from '@nestjs/config'
 import { UpdatePasswordDto } from './dto/update-password.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
+import { ForgetPasswordDto } from './dto/forget-password.dto'
 
 @Injectable()
 export class UserService {
@@ -78,13 +79,13 @@ export class UserService {
     }
   }
 
-  async generateAndSendMail(address: string) {
+  async generateAndSendMail(address: string, codeType = '验证码') {
     const code = Math.random().toString().slice(2, 8)
     await this.redisService.set(`captcha_${address}`, code, 5 * 60)
     await this.emailService.sendMail({
       to: address,
-      subject: '注册验证码',
-      html: `<p>你的注册验证码是${code}</p>`,
+      subject: codeType,
+      html: `<p>您的${codeType}是${code}</p>`,
     })
     console.log(address, code)
     return '发送成功'
@@ -196,7 +197,7 @@ export class UserService {
   async updatePassword(updatePasswordDto: UpdatePasswordDto, userId: number) {
     const user = await this.findUserById(userId)
     if (md5(updatePasswordDto.oldPassword) !== user.password) {
-      throw new UnauthorizedException('旧密码错误')
+      throw new BadRequestException('旧密码错误')
     }
     try {
       user.password = md5(updatePasswordDto.password)
@@ -276,5 +277,27 @@ export class UserService {
       users,
       totalCount,
     }
+  }
+
+  async forgetPassword(forgetPasswordDto: ForgetPasswordDto) {
+    const {username, password, captcha: _captcha, email} = forgetPasswordDto
+    
+    const user = await this.userRepository.findOneBy({username})
+    if (!user) {
+      throw new BadRequestException('不存在使用该用户名的用户')
+    }
+    if (user.email !== email) {
+      throw new BadRequestException('该邮箱不是该用户的注册邮箱')
+    }
+    const captcha = await this.redisService.get(`captcha_${user.email}`)
+    if (!captcha) {
+      throw new BadRequestException('验证码已失效')
+    }
+    if (captcha !== _captcha) {
+      throw new BadRequestException('验证码错误')
+    }
+    user.password = md5(password)
+    await this.userRepository.save(user)
+    return '修改成功'
   }
 }
