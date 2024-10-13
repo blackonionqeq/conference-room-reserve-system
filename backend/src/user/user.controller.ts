@@ -12,6 +12,8 @@ import {
   Param,
   ParseIntPipe,
   DefaultValuePipe,
+  UploadedFile,
+  BadRequestException,
   // SetMetadata,
   // Inject,
   // Patch,
@@ -28,6 +30,9 @@ import { UpdatePasswordDto } from './dto/update-password.dto'
 import type { Request } from 'express'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { ForgetPasswordDto } from './dto/forget-password.dto'
+import { FileInterceptor } from '@nestjs/platform-express'
+import * as path from 'node:path'
+import { storage } from 'src/utils/storage-config'
 // import { md5 } from 'src/utils/cypto'
 
 @Controller('user')
@@ -127,5 +132,28 @@ export class UserController {
   @Post('forget-password')
   async forgetPassowrd(@Body() forgetpasswordDto: ForgetPasswordDto) {
     return await this.userService.forgetPassword(forgetpasswordDto)
+  }
+
+  @Post('upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      dest: 'uploads',
+      limits: {
+        fileSize: 2 ** 20 * 3,
+      },
+      storage,
+      fileFilter(req, file, callback) {
+        const extname = path.extname(file.originalname)
+        if (['.png', '.jpg', '.gif'].includes(extname)) {
+          callback(null, true)
+        } else {
+          callback(new BadRequestException('只能上传图片'), false)
+        }
+      },
+    }),
+  )
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    console.log('file', file)
+    return file.path
   }
 }

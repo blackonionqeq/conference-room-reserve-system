@@ -6,6 +6,8 @@ export class RegisterUserDto {
   })
   username: string
 
+  avatar: string
+
   @IsNotEmpty({
     message: '密码不能为空',
   })

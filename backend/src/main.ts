@@ -10,6 +10,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe())
   app.useGlobalInterceptors(new FormatResponseInterceptor())
   app.enableCors()
+  app.useStaticAssets('uploads', {
+    prefix: '/uploads',
+  })
   await app.listen(app.get(ConfigService).get('nest_server_port'))
 }
 bootstrap()
