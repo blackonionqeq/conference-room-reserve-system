@@ -23,6 +23,7 @@ export class ConferenceRoomController {
     @Query('pageSize', new DefaultValuePipe(2), ParseIntPipe) pageSize: number,
     @Query('name') name?: string,
     @Query('capacity') capacity?: number,
+    @Query('location') location?: string,
     @Query('equipment') equipment?: string,
   ) {
     return await this.conferenceRoomService.list({
@@ -30,6 +31,7 @@ export class ConferenceRoomController {
       pageSize,
       name,
       capacity,
+      location,
       equipment,
     })
   }
@@ -49,8 +51,8 @@ export class ConferenceRoomController {
     return await this.conferenceRoomService.findOneById(id)
   }
 
-  @Delete(':id')
-  async deleteOne(@Param('id') id: number) {
+  @Delete('delete/:id')
+  async deleteOne(@Param('id', ParseIntPipe) id: number) {
     return await this.conferenceRoomService.deleteOne(id)
   }
 }

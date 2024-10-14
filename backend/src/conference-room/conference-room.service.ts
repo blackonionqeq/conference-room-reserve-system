@@ -38,12 +38,14 @@ export class ConferenceRoomService {
     name,
     capacity,
     equipment,
+    location,
   }: {
     pageSize: number
     pageNum: number
     capacity?: number
     equipment?: string
     name?: string
+    location?: string
   }) {
     const skipCount = Math.max(0, pageNum - 1) * pageSize
 
@@ -51,6 +53,7 @@ export class ConferenceRoomService {
     if (name) condition.name = Like(`%${name}%`)
     if (capacity) condition.capacity = capacity
     if (equipment) condition.equipment = Like(`%${equipment}%`)
+    if (location) condition.location = Like(`%${location}%`)
     const [conferenceRooms, totalCount] =
       await this.conferenceRoom.findAndCount({
         select: [

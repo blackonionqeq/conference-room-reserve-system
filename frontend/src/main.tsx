@@ -14,6 +14,12 @@ import { AdminLogin } from './pages/admin/Login'
 import { AdminMenu } from './pages/admin/Menu'
 import { UserManagement } from './pages/admin/UserManagement'
 import { UserMenu } from './pages/admin/UserMenu'
+import { ConferenceRoomManagement } from './pages/admin/ConferenceRoomManagement'
+import { ReserveManagement } from './pages/admin/ReserveManagement'
+import { DataStatistics } from './pages/admin/DataStatistics'
+import { Menu } from './pages/home/Menu'
+import { ConferenceRoomList } from './pages/home/ConferenceRoomList'
+import { ReserveHistory } from './pages/home/ReserveHistory'
 
 // function Layout() {
 //   return <div>
@@ -39,6 +45,24 @@ export const router = createBrowserRouter([
         path: '/home',
         element: <Home></Home>,
         children: [
+          {
+            path: '',
+            element: <Menu></Menu>,
+            children: [
+              {
+                path: '',
+                element: <ConferenceRoomList></ConferenceRoomList>
+              },
+              {
+                path: 'conference-room-list',
+                element: <ConferenceRoomList></ConferenceRoomList>,
+              },
+              {
+                path: 'reserve-history',
+                element: <ReserveHistory></ReserveHistory>
+              }
+            ]
+          },
           {
             path: 'login',
             element: <Login/>
@@ -76,6 +100,18 @@ export const router = createBrowserRouter([
               {
                 path: 'user-managment',
                 element: <UserManagement></UserManagement>,
+              },
+              {
+                path: 'conference-room-management',
+                element: <ConferenceRoomManagement></ConferenceRoomManagement>,
+              },
+              {
+                path: 'reserve-management',
+                element: <ReserveManagement></ReserveManagement>,
+              },
+              {
+                path: 'data-statistics',
+                element: <DataStatistics></DataStatistics>,
               },
             ],
           },
