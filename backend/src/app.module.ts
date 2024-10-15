@@ -15,6 +15,8 @@ import { LoginGuard } from './login.guard'
 import { PermissionGuard } from './permission.guard'
 import { ConferenceRoomModule } from './conference-room/conference-room.module'
 import { ConferenceRoom } from './conference-room/entities/conference-room.entity'
+import { ReservationModule } from './reservation/reservation.module'
+import { Reservation } from './reservation/entities/reservation.entity'
 
 @Module({
   imports: [
@@ -37,6 +39,7 @@ import { ConferenceRoom } from './conference-room/entities/conference-room.entit
     TypeOrmModule.forRootAsync({
       useFactory(configService: ConfigService) {
         return {
+          timezone: 'Z',
           type: 'mysql',
           host: configService.get('mysql_server_host'),
           port: configService.get('mysql_server_port'),
@@ -56,7 +59,7 @@ import { ConferenceRoom } from './conference-room/entities/conference-room.entit
           extra: {
             authPlugin: 'sha256_password',
           },
-          entities: [User, Role, Permission, ConferenceRoom],
+          entities: [User, Role, Permission, ConferenceRoom, Reservation],
         }
       },
       inject: [ConfigService],
@@ -65,6 +68,7 @@ import { ConferenceRoom } from './conference-room/entities/conference-room.entit
     RedisModule,
     EmailModule,
     ConferenceRoomModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [

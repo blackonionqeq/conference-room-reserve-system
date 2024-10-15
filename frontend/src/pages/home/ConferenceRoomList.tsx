@@ -1,8 +1,9 @@
 import api from "@/api";
-import { Button, Form, Input, Popconfirm, Table,  message,  } from "antd";
+import { Button, Form, Input, Table,  } from "antd";
 import { useForm } from "antd/es/form/Form";
 import { ColumnsType,  } from "antd/es/table";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CreateReservationModal } from "./CreateReservationModal";
 
 type SearchParam = {
 	name: string
@@ -11,7 +12,7 @@ type SearchParam = {
 	location: string
 }
 
-type ConferenceItem = {
+export type ConferenceItem = {
 	id: number
 	name: string
 	equipment: string
@@ -41,12 +42,6 @@ export function ConferenceRoomList() {
 		})
 	}
 	
-	const handleDeleteRoom = useCallback(async (id: number) => {
-		await api.delete(`/conference-room/delete/${id}`)
-		message.success('操作成功')
-		
-		search()
-	}, [])
 	const columns: ColumnsType<ConferenceItem> = useMemo(() => [
 		{ title: '会议室名称', dataIndex: 'name' },
 		{ title: '位置', dataIndex: 'location' },
@@ -57,16 +52,18 @@ export function ConferenceRoomList() {
 		// { title: '更新时间', dataIndex: 'updateDate' },
 		// { title: '状态', dataIndex: 'isFrozen', render: (_, record) => record.isFrozen ? <Badge status="success">已冻结</Badge> : '正常' },
 		{ title: '操作', render: (_, record) => <div>
-			<Popconfirm title='确认' description='确认要删除这个会议室吗？' okText='确认' cancelText='取消' onConfirm={() => handleDeleteRoom(record.id)}>
-				<a href="#">预定</a> 
-			</Popconfirm>
-			<br />
+			<a href="#" onClick={() => {
+				setCreateRoomId(record.id)
+				setCreateModalOpen(true)
+			}}>预定</a>
 		</div>
 		}
   ], [])
 	const [pageNum, setPageNum] = useState(1)
 	const [conferenceRooms, setConferenceRooms] = useState<ConferenceItem[]>([])
 	const [total, setTotal] = useState(-1)
+	const [createRoomId, setCreateRoomId] = useState(-1)
+	const [createModalOpen, setCreateModalOpen] = useState(false)
 	const searchConferenceRooms = useCallback(async ({
 		name,
 		location,
@@ -129,6 +126,10 @@ export function ConferenceRoomList() {
 				onChange
 			}}></Table>
 		</div>
+
+		<CreateReservationModal isOpen={createModalOpen} roomId={createRoomId} handleClose={() => {
+			setCreateModalOpen(false)
+		}}></CreateReservationModal>
 
 	</div>
 }

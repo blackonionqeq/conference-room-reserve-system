@@ -10,7 +10,7 @@ type SearchParam = {
 	email: string
 }
 
-type User = {
+export type User = {
 	id: number
 	username: string
 	nickName: string
