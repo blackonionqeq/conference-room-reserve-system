@@ -17,6 +17,16 @@ import { ConferenceRoomModule } from './conference-room/conference-room.module'
 import { ConferenceRoom } from './conference-room/entities/conference-room.entity'
 import { ReservationModule } from './reservation/reservation.module'
 import { Reservation } from './reservation/entities/reservation.entity'
+import { StatisticModule } from './statistic/statistic.module'
+import {
+  utilities,
+  WINSTON_MODULE_NEST_PROVIDER,
+  WinstonLogger,
+  WinstonModule,
+} from 'nest-winston'
+import * as winston from 'winston'
+import { OrmLogger } from './OrmLogger'
+import 'winston-daily-rotate-file'
 
 @Module({
   imports: [
@@ -36,8 +46,32 @@ import { Reservation } from './reservation/entities/reservation.entity'
       },
       inject: [ConfigService],
     }),
+    WinstonModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        level: 'debug',
+        transports: [
+          // new winston.transports.File({
+          //   filename: `${process.cwd()}/log`,
+          // }),
+          new winston.transports.DailyRotateFile({
+            level: configService.get('winston_log_level'),
+            dirname: configService.get('winston_log_dirname'),
+            filename: configService.get('winston_log_filename'),
+            datePattern: configService.get('winston_log_date_pattern'),
+            maxSize: configService.get('winston_log_max_size'),
+          }),
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              utilities.format.nestLike(),
+            ),
+          }),
+        ],
+      }),
+      inject: [ConfigService],
+    }),
     TypeOrmModule.forRootAsync({
-      useFactory(configService: ConfigService) {
+      useFactory(configService: ConfigService, logger: WinstonLogger) {
         return {
           timezone: 'Z',
           type: 'mysql',
@@ -47,12 +81,9 @@ import { Reservation } from './reservation/entities/reservation.entity'
           password: configService.get('mysql_server_password'),
           database: configService.get('mysql_server_database'),
           // host: 'localhost',
-          // port: 3306,
-          // username: 'root',
-          // password: 'shidi666',
-          // database: 'conference_room_reserve_system',
           synchronize: false,
           // synchronize: true,
+          logger: new OrmLogger(logger),
           logging: true,
           poolSize: 10,
           connectorPackage: 'mysql2',
@@ -62,13 +93,14 @@ import { Reservation } from './reservation/entities/reservation.entity'
           entities: [User, Role, Permission, ConferenceRoom, Reservation],
         }
       },
-      inject: [ConfigService],
+      inject: [ConfigService, WINSTON_MODULE_NEST_PROVIDER],
     }),
     UserModule,
     RedisModule,
     EmailModule,
     ConferenceRoomModule,
     ReservationModule,
+    StatisticModule,
   ],
   controllers: [AppController],
   providers: [
