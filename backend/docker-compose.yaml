@@ -2,7 +2,7 @@ services:
   mysql-container:
     image: mysql
     volumes:
-      - E:\docker-mount\hello-mysql:/var/lib/mysql
+      - /var/lib/mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: conference_room_reserve_system
       MYSQL_ROOT_PASSWORD: shidi666
