@@ -1,0 +1,28 @@
+services:
+  mysql-container:
+    image: mysql
+    volumes:
+      - E:\docker-mount\hello-mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: conference_room_reserve_system
+      MYSQL_ROOT_PASSWORD: shidi666
+    networks:
+      - common-network
+  redis-container:
+    image: redis
+    networks:
+      - common-network
+  nest-app:
+    build:
+      context: ./
+      dockerfile: ./dockerfile
+    depends_on:
+      - mysql-container
+      - redis-container
+    ports:
+      - 3000:3000
+    networks:
+      - common-network
+networks:
+  common-network:
+    driver: bridge

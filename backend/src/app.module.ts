@@ -27,12 +27,13 @@ import {
 import * as winston from 'winston'
 import { OrmLogger } from './OrmLogger'
 import 'winston-daily-rotate-file'
+import * as path from 'path'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: 'src/.env',
+      envFilePath: path.join(__dirname, '.env'),
     }),
     JwtModule.registerAsync({
       global: true,
