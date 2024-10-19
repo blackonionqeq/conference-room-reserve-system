@@ -1,5 +1,5 @@
-import { ConferenceRoom } from 'src/conference-room/entities/conference-room.entity'
-import { User } from 'src/user/entities/user.entity'
+import { ConferenceRoom } from '../../conference-room/entities/conference-room.entity'
+import { User } from '../../user/entities/user.entity'
 import {
   Column,
   CreateDateColumn,
